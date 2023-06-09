@@ -8,18 +8,12 @@ import (
 	"regexp"
 
 	"github.com/vanyovan/dating-apps/internal/entity"
-	"github.com/vanyovan/dating-apps/internal/usecase"
 )
 
 type SignUpRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-}
-
-type Handler struct {
-	SignUpUc  usecase.SignUpUsecase
-	PackageUc usecase.PackageUsecase
 }
 
 func (h *Handler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
