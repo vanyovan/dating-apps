@@ -23,3 +23,12 @@ type User struct {
 	Password string
 	Email    string
 }
+
+type OTPRequestParam struct {
+	UserId string `json:"user_id"`
+}
+
+type OTPResponse struct {
+	UserId string `json:"user_id"`
+	Otp    string `json:"otp"`
+}

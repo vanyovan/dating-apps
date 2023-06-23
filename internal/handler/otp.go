@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/vanyovan/dating-apps/internal/entity"
@@ -14,9 +14,9 @@ type OTPRequest struct {
 }
 
 type Handler struct {
-	SignUpUc  usecase.SignUpUsecase
-	PackageUc usecase.PackageUsecase
-	OtpUC     usecase.OtpUsecase
+	SignUpUc   usecase.SignUpUsecase
+	PackageUc  usecase.PackageUsecase
+	OtpService *usecase.OtpService
 }
 
 func (h *Handler) RequestOTP(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +32,15 @@ func (h *Handler) RequestOTP(w http.ResponseWriter, r *http.Request) {
 		UserId: request.UserId,
 	}
 
-	err = h.OtpUC.SetOTP(r.Context(), param)
+	result, err := h.OtpService.SetOTP(context.TODO(), param)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Set OTP Failed"))
 		return
 	}
 
+	jsonResponse, err := json.Marshal(result)
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "OTP Request Success")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(jsonResponse))
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/vanyovan/dating-apps/internal/handler"
+	"github.com/vanyovan/dating-apps/internal/repo"
 	"github.com/vanyovan/dating-apps/internal/usecase"
 )
 
@@ -18,17 +19,21 @@ func main() {
 	}
 	defer db.Close()
 
+	otpRepo := repo.NewOTPRepo(db)
 	signupUsecase := usecase.NewSignUpUsecase(db)
 	packageUsecase := usecase.NewPackageUsecase(db)
+	otpUsecase := usecase.NewOtpService(otpRepo)
 
-	signupHandler := &handler.Handler{
-		SignUpUc:  signupUsecase,
-		PackageUc: packageUsecase,
+	handler := &handler.Handler{
+		SignUpUc:   signupUsecase,
+		PackageUc:  packageUsecase,
+		OtpService: otpUsecase,
 	}
 	router := chi.NewRouter()
 
-	router.Method(http.MethodPost, "/signup", http.HandlerFunc(signupHandler.SignUpHandler))
-	router.Method(http.MethodPost, "/premium", http.HandlerFunc(signupHandler.UpdateUserPremiumHandler))
+	router.Method(http.MethodPost, "/signup", http.HandlerFunc(handler.SignUpHandler))
+	router.Method(http.MethodPost, "/premium", http.HandlerFunc(handler.UpdateUserPremiumHandler))
+	router.Method(http.MethodPost, "/otp", http.HandlerFunc(handler.RequestOTP))
 
 	server := &http.Server{
 		Addr:    ":8080",
